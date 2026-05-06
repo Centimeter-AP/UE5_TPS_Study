@@ -15,6 +15,8 @@ class UInputAction;
 struct FInputActionValue;
 class UCombatLifeBar;
 class UWidgetComponent;
+class UInventoryComponent;
+class AItemPickup;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogCombatCharacter, Log, All);
 
@@ -34,6 +36,9 @@ class ACombatCharacter : public ACharacter, public ICombatAttacker, public IComb
 	/** Camera boom positioning the camera behind the character */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components", meta = (AllowPrivateAccess = "true"))
 	USpringArmComponent* CameraBoom;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components", meta = (AllowPrivateAccess = "true"))
+	UInventoryComponent* Inventory;
 
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components", meta = (AllowPrivateAccess = "true"))
@@ -72,6 +77,14 @@ protected:
 	/** Toggle Camera Side Input Action */
 	UPROPERTY(EditAnywhere, Category ="Input")
 	UInputAction* ToggleCameraAction;
+
+	/** Pickup Input Action */
+	UPROPERTY(EditAnywhere, Category ="Input")
+	UInputAction* PickupAction;
+
+	/** 현재 픽업 범위 안에 있는 아이템 액터 */
+	UPROPERTY()
+	AItemPickup* NearbyPickup;
 
 	/** Max amount of HP the character will have on respawn */
 	UPROPERTY(EditAnywhere, Category="Damage", meta = (ClampMin = 0, ClampMax = 100))
@@ -198,6 +211,9 @@ protected:
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
 
+	/** Called for pickup input */
+	void PickupPressed();
+
 	/** Called for combo attack input */
 	void ComboAttackPressed();
 
@@ -231,6 +247,15 @@ public:
 	/** Handles combo attack released from either controls or UI interfaces */
 	UFUNCTION(BlueprintCallable, Category="Input")
 	virtual void DoComboAttackEnd();
+
+	/** NearbyPickup 범위 안에 있는 아이템을 인벤토리에 추가 */
+	UFUNCTION(BlueprintCallable, Category="Input")
+	virtual void DoPickup();
+
+	/** AItemPickup이 overlap 시 호출해 NearbyPickup을 설정/해제 */
+	void SetNearbyPickup(AItemPickup* Pickup);
+
+	FORCEINLINE UInventoryComponent* GetInventory() const { return Inventory; }
 
 	/** Handles charged attack pressed from either controls or UI interfaces */
 	UFUNCTION(BlueprintCallable, Category="Input")

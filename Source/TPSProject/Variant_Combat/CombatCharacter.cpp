@@ -2,6 +2,8 @@
 
 
 #include "CombatCharacter.h"
+#include "Inventory/InventoryComponent.h"
+#include "Gameplay/ItemPickup.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/WidgetComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -46,6 +48,8 @@ ACombatCharacter::ACombatCharacter()
 	// create the life bar widget component
 	LifeBar = CreateDefaultSubobject<UWidgetComponent>(TEXT("LifeBar"));
 	LifeBar->SetupAttachment(RootComponent);
+
+	Inventory = CreateDefaultSubobject<UInventoryComponent>(TEXT("Inventory"));
 
 	// set the player tag
 	Tags.Add(FName("Player"));
@@ -531,7 +535,28 @@ void ACombatCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 		// Camera Side Toggle
 		EnhancedInputComponent->BindAction(ToggleCameraAction, ETriggerEvent::Triggered, this, &ACombatCharacter::ToggleCamera);
+
+		// Pickup
+		EnhancedInputComponent->BindAction(PickupAction, ETriggerEvent::Started, this, &ACombatCharacter::PickupPressed);
 	}
+}
+
+void ACombatCharacter::PickupPressed()
+{
+	DoPickup();
+}
+
+void ACombatCharacter::DoPickup()
+{
+	if (NearbyPickup)
+	{
+		NearbyPickup->TryGiveToCharacter(this);
+	}
+}
+
+void ACombatCharacter::SetNearbyPickup(AItemPickup* Pickup)
+{
+	NearbyPickup = Pickup;
 }
 
 void ACombatCharacter::NotifyControllerChanged()

@@ -34,6 +34,7 @@ public class TPSProject : ModuleRules
 			"TPSProject/Variant_Combat/UI",
 		});
 
+
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
 
