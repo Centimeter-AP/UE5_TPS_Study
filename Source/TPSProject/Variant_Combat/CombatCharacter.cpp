@@ -4,6 +4,9 @@
 #include "CombatCharacter.h"
 #include "Inventory/InventoryComponent.h"
 #include "Gameplay/ItemPickup.h"
+#include "UI/InventoryWidget.h"
+#include "Blueprint/UserWidget.h"
+#include "GameFramework/PlayerController.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/WidgetComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -538,6 +541,46 @@ void ACombatCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 		// Pickup
 		EnhancedInputComponent->BindAction(PickupAction, ETriggerEvent::Started, this, &ACombatCharacter::PickupPressed);
+
+		// Inventory Toggle
+		EnhancedInputComponent->BindAction(InventoryAction, ETriggerEvent::Started, this, &ACombatCharacter::InventoryTogglePressed);
+	}
+}
+
+void ACombatCharacter::InventoryTogglePressed()
+{
+	DoToggleInventory();
+}
+
+void ACombatCharacter::DoToggleInventory()
+{
+	APlayerController* PC = Cast<APlayerController>(GetController());
+	if (!PC) return;
+
+	if (InventoryWidgetInstance)
+	{
+		InventoryWidgetInstance->RemoveFromParent();
+		InventoryWidgetInstance = nullptr;
+
+		PC->SetShowMouseCursor(false);
+		PC->SetInputMode(FInputModeGameOnly());
+	}
+	else
+	{
+		if (!InventoryWidgetClass) return;
+
+		InventoryWidgetInstance = CreateWidget<UInventoryWidget>(PC, InventoryWidgetClass);
+		if (InventoryWidgetInstance)
+		{
+			InventoryWidgetInstance->InitWidget(Inventory);
+			InventoryWidgetInstance->AddToViewport();
+
+			PC->SetShowMouseCursor(true);
+			FInputModeGameAndUI InputMode;
+			InputMode.SetWidgetToFocus(InventoryWidgetInstance->TakeWidget());
+			InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+			PC->SetInputMode(InputMode);
+		}
 	}
 }
 

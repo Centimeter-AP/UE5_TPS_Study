@@ -17,6 +17,7 @@ class UCombatLifeBar;
 class UWidgetComponent;
 class UInventoryComponent;
 class AItemPickup;
+class UInventoryWidget;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogCombatCharacter, Log, All);
 
@@ -81,6 +82,18 @@ protected:
 	/** Pickup Input Action */
 	UPROPERTY(EditAnywhere, Category ="Input")
 	UInputAction* PickupAction;
+
+	/** Inventory Toggle Input Action */
+	UPROPERTY(EditAnywhere, Category ="Input")
+	UInputAction* InventoryAction;
+
+	/** 에디터에서 할당할 인벤토리 위젯 클래스 */
+	UPROPERTY(EditAnywhere, Category ="Inventory")
+	TSubclassOf<UInventoryWidget> InventoryWidgetClass;
+
+	/** 현재 열려있는 인벤토리 위젯 인스턴스 */
+	UPROPERTY()
+	TObjectPtr<UInventoryWidget> InventoryWidgetInstance;
 
 	/** 현재 픽업 범위 안에 있는 아이템 액터 */
 	UPROPERTY()
@@ -211,6 +224,9 @@ protected:
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
 
+	/** Called for inventory toggle input */
+	void InventoryTogglePressed();
+
 	/** Called for pickup input */
 	void PickupPressed();
 
@@ -251,6 +267,10 @@ public:
 	/** NearbyPickup 범위 안에 있는 아이템을 인벤토리에 추가 */
 	UFUNCTION(BlueprintCallable, Category="Input")
 	virtual void DoPickup();
+
+	/** 인벤토리 창을 열거나 닫는다 */
+	UFUNCTION(BlueprintCallable, Category="Input")
+	virtual void DoToggleInventory();
 
 	/** AItemPickup이 overlap 시 호출해 NearbyPickup을 설정/해제 */
 	void SetNearbyPickup(AItemPickup* Pickup);
