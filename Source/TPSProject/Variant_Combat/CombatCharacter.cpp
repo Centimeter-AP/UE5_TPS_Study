@@ -505,6 +505,18 @@ void ACombatCharacter::BeginPlay()
 
 	// reset HP to maximum
 	ResetHP();
+
+	// 인벤토리 위젯 미리 생성 (표시/숨김만 반복)
+	if (InventoryWidgetClass)
+	{
+		InventoryWidgetInstance = CreateWidget<UInventoryWidget>(Cast<APlayerController>(GetController()), InventoryWidgetClass);
+		if (InventoryWidgetInstance)
+		{
+			InventoryWidgetInstance->InitWidget(Inventory);
+			InventoryWidgetInstance->AddToViewport();
+			InventoryWidgetInstance->SetVisibility(ESlateVisibility::Collapsed);
+		}
+	}
 }
 
 void ACombatCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -554,33 +566,27 @@ void ACombatCharacter::InventoryTogglePressed()
 
 void ACombatCharacter::DoToggleInventory()
 {
+	if (!InventoryWidgetInstance) return;
+
 	APlayerController* PC = Cast<APlayerController>(GetController());
 	if (!PC) return;
 
-	if (InventoryWidgetInstance)
-	{
-		InventoryWidgetInstance->RemoveFromParent();
-		InventoryWidgetInstance = nullptr;
+	const bool bIsOpen = InventoryWidgetInstance->GetVisibility() == ESlateVisibility::Visible;
 
+	if (bIsOpen)
+	{
+		InventoryWidgetInstance->SetVisibility(ESlateVisibility::Collapsed);
 		PC->SetShowMouseCursor(false);
 		PC->SetInputMode(FInputModeGameOnly());
 	}
 	else
 	{
-		if (!InventoryWidgetClass) return;
-
-		InventoryWidgetInstance = CreateWidget<UInventoryWidget>(PC, InventoryWidgetClass);
-		if (InventoryWidgetInstance)
-		{
-			InventoryWidgetInstance->InitWidget(Inventory);
-			InventoryWidgetInstance->AddToViewport();
-
-			PC->SetShowMouseCursor(true);
-			FInputModeGameAndUI InputMode;
-			InputMode.SetWidgetToFocus(InventoryWidgetInstance->TakeWidget());
-			InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-			PC->SetInputMode(InputMode);
-		}
+		InventoryWidgetInstance->SetVisibility(ESlateVisibility::Visible);
+		PC->SetShowMouseCursor(true);
+		FInputModeGameAndUI InputMode;
+		InputMode.SetWidgetToFocus(InventoryWidgetInstance->TakeWidget());
+		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+		PC->SetInputMode(InputMode);
 	}
 }
 
