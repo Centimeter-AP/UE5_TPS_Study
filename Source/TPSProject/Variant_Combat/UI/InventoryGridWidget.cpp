@@ -11,6 +11,7 @@ void UInventoryGridWidget::BuildGrid(int32 Width, int32 Height)
 	GridPanel->ClearChildren();
 	GridPanel->SetMinDesiredSlotWidth(CellSize);
 	GridPanel->SetMinDesiredSlotHeight(CellSize);
+	GridPanel->SetSlotPadding(FMargin(1.0f));
 
 	for (int32 Row = 0; Row < Height; ++Row)
 	{
