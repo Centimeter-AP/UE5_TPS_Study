@@ -38,7 +38,7 @@ int32 UInventoryComponent::TryAddItem(UItemDataAsset* DataAsset, int32 Count, in
 			}
 		}
 	}
-
+	
 	// 남은 수량을 새 슬롯에 배치
 	while (Remaining > 0)
 	{
@@ -56,7 +56,11 @@ int32 UInventoryComponent::TryAddItem(UItemDataAsset* DataAsset, int32 Count, in
 	}
 
 	int32 Added = Count - Remaining;
-	if (Added > 0) OnInventoryChanged.Broadcast();
+	if (Added > 0)
+	{
+		UE_LOG(LogTemp, Log, TEXT("[Inventory] %s x%d 추가됨 (요청: %d)"), *Data.ItemName.ToString(), Added, Count);
+		OnInventoryChanged.Broadcast();
+	}
 	return Added;
 }
 
